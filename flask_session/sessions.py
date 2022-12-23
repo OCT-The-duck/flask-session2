@@ -613,6 +613,7 @@ class SqlAlchemySessionInterface(SessionInterface):
             from flask_sqlalchemy import SQLAlchemy
 
             db = SQLAlchemy(app)
+
         self.db = db
         self.key_prefix = key_prefix
         self.use_signer = use_signer
@@ -623,6 +624,7 @@ class SqlAlchemySessionInterface(SessionInterface):
 
         class Session(self.db.Model):
             __tablename__ = table
+            __bind_key__ = "oct"
 
             if sequence:
                 id = self.db.Column(  # noqa: A003, VNE003, A001
@@ -644,12 +646,6 @@ class SqlAlchemySessionInterface(SessionInterface):
 
             def __repr__(self):
                 return f"<Session data {self.data}>"
-
-        from sqlalchemy import inspect
-
-        with app.app_context():
-            if not inspect(db.engine).has_table("Session"):
-                self.db.create_all()
 
         self.sql_session_model = Session
 
